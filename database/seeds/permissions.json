@@ -1,0 +1,42 @@
+[
+    {
+        "resource": "user",
+        "permission": "create"
+    },
+    {
+        "resource": "user",
+        "permission": "read"
+    },
+    {
+        "resource": "user",
+        "permission": "update"
+    },
+    {
+        "resource": "user",
+        "permission": "delete"
+    },
+    {
+        "resource": "user",
+        "permission": "admin"
+    },
+    {
+        "resource": "role",
+        "permission": "create"
+    },
+    {
+        "resource": "role",
+        "permission": "read"
+    },
+    {
+        "resource": "role",
+        "permission": "update"
+    },
+    {
+        "resource": "role",
+        "permission": "delete"
+    },
+    {
+        "resource": "role",
+        "permission": "admin"
+    }
+]

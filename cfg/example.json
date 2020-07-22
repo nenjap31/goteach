@@ -1,0 +1,23 @@
+{
+	"port": "1123",
+	"jwtSign": "secret",
+	"database": {
+		"mysql": {
+			"driver": "mysql",
+			"host": "localhost",
+			"user": "root",
+			"password": "admin1234",
+			"db_name": "teach",
+			"port": 3306,
+			"pool": {
+				"maxOpenConns": 100,
+				"maxIdleConns": 10,
+				"maxLifetime": 300
+			}
+		}
+	},
+	"logdir": "log",
+	"log_identifier": "goteach",
+	"log_max_age": 15,
+	"debug": true
+}
