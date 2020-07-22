@@ -1,0 +1,4 @@
+/vendor
+/cfg/dev.json
+/cfg/testing.json
+/log
