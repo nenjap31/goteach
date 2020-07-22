@@ -1,19 +1,22 @@
 package controllers
 
 import (
+	"encoding/json"
+	"flag"
 	"goteach/config"
 	"goteach/models"
 	"goteach/presenter"
+	"os"
+	"strings"
 
 	"net/http"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"golang.org/x/crypto/bcrypt"
 	"github.com/spf13/viper"
 	"github.com/thedevsaddam/govalidator"
-	"github.com/labstack/gommon/log"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -33,12 +36,16 @@ func LoginUser(c echo.Context) error {
 	var user models.User
 	db := config.DB
 	login := new(LoginData)
-	c.Bind(login)
 
-	if db.Where("username = ?", login.Username).First(&user).RecordNotFound() {
-		return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "Invalid username or password"})
+	if flag.Lookup("test.v") == nil && !strings.HasSuffix(os.Args[0], ".test") {
+		_ = c.Bind(login)
+	} else {
+		_ = json.NewDecoder(c.Request().Body).Decode(&login)
+	}
+	if db.Preload("Role").Where("username = ?", login.Username).First(&user).RecordNotFound() {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{MESSAGE: INVALIDUSER})
 	} else if !user.IsActive {
-		return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "User disabled"})
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{MESSAGE: "User disabled"})
 	} else if CheckPasswordHash(login.Password, user.Password) {
 
 		// Set custom claims
@@ -64,11 +71,13 @@ func LoginUser(c echo.Context) error {
 			"token": t,
 		})
 	} else {
-		return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "Invalid username or password"})
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{MESSAGE: INVALIDUSER})
 	}
+
 
 	return echo.ErrUnauthorized
 }
+
 
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
@@ -84,37 +93,42 @@ func GetProfile(c echo.Context) error {
 
 	// get user data by user id
 	db.First(&user, claim.ID)
+	db.Preload(ROLE_PERMISSION_TEXT).Find(&user)
+
 
 	return c.JSON(http.StatusOK, user)
 }
 
+/*func getToken(c echo.Context) (token string) {
+	user := c.Get("user").(*jwt.Token)
+
+	return user.Raw
+}*/
+
+// getUser() get authecticated user
 func getUser(c echo.Context) *config.JwtCustomClaims {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*config.JwtCustomClaims)
 	return claims
 }
 
-
-
-func GetUser(c echo.Context) error {
-
+func GetListUser(c echo.Context) error {
 	db := config.DB
-	name := c.FormValue("name")
-	var user []presenter.User
-	if name != "" {
-		db = db.Where("name LIKE ?", "%"+name+"%")
-	}
+	var user []models.User
+
+	db.Find(&user)
 	return c.JSON(http.StatusOK, user)
 }
+
 
 func AddUser(c echo.Context) error {
 	var user models.User
 	db := config.DB
 
 	rules := govalidator.MapData{
-		"username": []string{"required"},
-		"email":    []string{"required", "email"},
-		"password": []string{"required"},
+		USERNAME: []string{REQUIRED},
+		"email":    []string{REQUIRED, "email"},
+		"password": []string{REQUIRED},
 	}
 
 	opts := govalidator.Options{
@@ -127,31 +141,31 @@ func AddUser(c echo.Context) error {
 	e := v.ValidateJSON()
 
 	if len(e) > 0 {
-		err := map[string]interface{}{"validationError": e}
+		err := map[string]interface{}{VALIDATIONERROR: e}
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	var users []models.User
 	db.Where("username = ? ", user.Username).Find(&users)
 	if len(users) > 0 {
-		er := map[string]interface{}{"username": []string{"username already used"}}
-		err := map[string]interface{}{"validationError": er}
+		er := map[string]interface{}{MESSAGE: []string{"username already used"}}
+		err := map[string]interface{}{VALIDATIONERROR: er}
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	db.Where("email = ? ", user.Email).Find(&users)
 	if len(users) > 0 {
-		er := map[string]interface{}{"email": []string{"email already used"}}
-		err := map[string]interface{}{"validationError": er}
+		er := map[string]interface{}{MESSAGE: []string{"email already used"}}
+		err := map[string]interface{}{VALIDATIONERROR: er}
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	user.Password, _ = HashPassword(user.Password)
 
 	if err := db.Create(&user).Error; err != nil {
-		log.Error(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	db.Preload(ROLE_PERMISSION_TEXT).Find(&user)
 
 	return c.JSON(http.StatusCreated, user)
 }
@@ -161,8 +175,8 @@ func UpdateUser(c echo.Context) error {
 	db := config.DB
 
 	rules := govalidator.MapData{
-		"username": []string{"required"},
-		"email":    []string{"required", "email"},
+		USERNAME: []string{},
+		"email":    []string{"email"},
 	}
 
 	opts := govalidator.Options{
@@ -175,7 +189,7 @@ func UpdateUser(c echo.Context) error {
 	e := v.ValidateJSON()
 
 	if len(e) > 0 {
-		err := map[string]interface{}{"validationError": e}
+		err := map[string]interface{}{VALIDATIONERROR: e}
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -185,15 +199,33 @@ func UpdateUser(c echo.Context) error {
 	id := c.Param("id")
 	db.First(&user, id).Count(&count)
 	if count != 1 {
-		return c.String(404, "user does not exist")
+		er := map[string]interface{}{MESSAGE: []string{"user does not exist"}}
+		err := map[string]interface{}{VALIDATIONERROR: er}
+		return c.JSON(http.StatusBadRequest, err)
 	}
+
+	var users []models.User
+	db.Where("username = ? ", newData.Username).Find(&users)
+	if len(users) > 0 {
+		er := map[string]interface{}{MESSAGE: []string{"username already used"}}
+		err := map[string]interface{}{VALIDATIONERROR: er}
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	db.Where("email = ? ", newData.Email).Find(&users)
+	if len(users) > 0 {
+		er := map[string]interface{}{MESSAGE: []string{"email already used"}}
+		err := map[string]interface{}{VALIDATIONERROR: er}
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
 	if len(newData.Password) > 0 {
 		newData.Password, _ = HashPassword(newData.Password)
 	}
 	db.Model(&user).Updates(newData)
 	db.Model(&user).Update("is_active", newData.IsActive)
-
-	return c.JSON(http.StatusCreated, nil)
+	db.Preload(ROLE_PERMISSION_TEXT).Find(&user)
+	return c.JSON(http.StatusOK, user)
 }
 
 func HashPassword(password string) (string, error) {

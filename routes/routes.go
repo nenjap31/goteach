@@ -19,7 +19,7 @@ func Api(e *echo.Echo) {
 
 	// user
 	user := e.Group("user", middleware.JWTWithConfig(config.JwtConfig))
-	user.GET("", c.GetUser, acl("read_user"))
+	user.GET("", c.GetProfile, acl("read_user"))
 	user.POST("", c.AddUser, acl("create_user"))
 	user.PUT("/:id", c.UpdateUser, acl("update_user"))
 	

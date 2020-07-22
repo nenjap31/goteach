@@ -1,0 +1,59 @@
+{
+	"variables": [],
+	"info": {
+		"name": "goteach",
+		"_postman_id": "498fa754-b81c-817d-eb19-b98e8c47ec63",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User",
+			"description": "",
+			"item": [
+				{
+					"name": "Login User",
+					"request": {
+						"url": "http://localhost:1123/login",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"username\": \"user\",\n\t\"password\":\"goteach\"\n}"
+						},
+						"description": "Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"request": {
+						"url": "http://localhost:1123/user",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ1c2VyIiwicm9sZV9pZCI6MiwiZXhwIjoxNTk1NjQ4MDAxLCJpc19hZG1pbiI6ZmFsc2V9.iUbylYpjxsdxThXJnO3pdQIGyGi1feiNa9_eyUdkmWs",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": "get user"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

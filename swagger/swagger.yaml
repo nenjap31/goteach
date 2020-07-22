@@ -1,0 +1,462 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "1.0.0"
+  title: "Swagger Goteach"
+host: "xxx.xxx.xxx"
+schemes:
+  - "https"
+paths:
+  /login:
+    post:
+      tags:
+        - "Login"
+      summary: "Login"
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            properties:
+              username:
+                type: "string"
+                example: "goteach"
+              password:
+                type: "string"
+                example: "goteach"
+      responses:
+        200:
+          description: "success"
+          schema:
+            properties:
+              token:
+                type: "string"
+                example: "1234"
+        401:
+          description: "Unauthorized"
+          schema:
+            properties:
+              message:
+                type: "string"
+                example: "Invalid username or password"
+
+  /user:
+    get:
+      tags:
+        - "User"
+      summary: "Get Profile"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer Authorization
+          required: true
+          x-example: Bearer xxx
+          type: string
+      responses:
+        200:
+          description: "get profile"
+          schema:
+            $ref: "#/definitions/GetprofileResp"
+    post:
+      tags:
+        - "User"
+      summary: "Add user"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer Authorization
+          required: true
+          x-example: Bearer xxx
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            properties:
+              username:
+                type: "string"
+                example: "goteach"
+              password:
+                type: "string"
+                example: "goteach"
+              email:
+                type: "string"
+                example: "goteach@xxx.xxx"
+              name:
+                type: "string"
+                example: "goteach"
+              is_active:
+                type: boolean
+                example: true
+              role_id:
+                type: integer
+                example: 1
+      responses:
+        201:
+          description: "Add user"
+          schema:
+            $ref: "#/definitions/GetprofileResp"
+        400:
+          description: "Add user"
+          schema:
+            properties:
+              validationError:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      type: string
+                      example: "username already used"
+
+  /user/{id}:
+    put:
+      tags:
+        - "User"
+      summary: "Update user"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer Authorization
+          required: true
+          x-example: Bearer xxx
+          type: string
+        - name: "id"
+          in: "path"
+          description: "User ID"
+          required: true
+          x-example: 1
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            properties:
+              username:
+                type: "string"
+                example: "goteach"
+              password:
+                type: "string"
+                example: "goteach"
+              email:
+                type: "string"
+                example: "goteach@xxx.xxx"
+              name:
+                type: "string"
+                example: "goteach"
+              is_active:
+                type: boolean
+                example: true
+              role_id:
+                type: integer
+                example: 1
+      responses:
+        200:
+          description: "Update user"
+          schema:
+            $ref: "#/definitions/GetprofileResp"
+        400:
+          description: "Add user"
+          schema:
+            properties:
+              validationError:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      type: string
+                      example: "user does not exist"
+
+  /role:
+    get:
+      tags:
+        - "Role"
+      summary: "Get Role"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer Authorization
+          required: true
+          x-example: Bearer xxx
+          type: string
+      responses:
+        200:
+          description: "get role"
+          schema:
+            $ref: "#/definitions/RoleListResponse"
+    post:
+      tags:
+        - "Role"
+      summary: "Add Role"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer Authorization
+          required: true
+          x-example: Bearer xxx
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: 'cs'
+              permissions:
+                type: array
+                items:
+                  type: number
+                  description: permission_id
+                example: [ 1, 2 ]
+      responses:
+        201:
+          description: "add role"
+          schema:
+            $ref: "#/definitions/RoleAddResp"
+
+  /role/{roleId}:
+    put:
+      tags:
+        - "Role"
+      summary: "Update Role"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer Authorization
+          required: true
+          x-example: Bearer xxx
+          type: string
+        - name: "roleId"
+          in: "path"
+          description: "role ID"
+          required: true
+          x-example: 1
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: 'cs'
+              permissions:
+                type: array
+                items:
+                  type: number
+                  description: permission_id
+                example: [ 1, 2 ]
+      responses:
+        200:
+          description: "update role"
+          schema:
+            $ref: "#/definitions/RoleAddResp"
+
+  /role/permission:
+    get:
+      tags:
+        - "Role"
+      summary: "Get permission"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer Authorization
+          required: true
+          x-example: Bearer xxx
+          type: string
+      responses:
+        200:
+          description: "get role"
+          schema:
+            $ref: "#/definitions/PermissionListResp"
+
+definitions:
+  GetprofileResp:
+    type: "object"
+    properties:
+      id:
+        type: integer
+        example: 1
+      name:
+        type: "string"
+        example: "goteach"
+      username:
+        type: "string"
+        example: "goteach"
+      email:
+        type: "string"
+        example: "goteach@xxx.xxx"
+      role_id:
+        type: integer
+        example: 1
+      is_active:
+        type: boolean
+        example: true
+      role:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          name:
+            type: "string"
+            example: "admin"
+          is_admin:
+            type: boolean
+            example: true
+          permission:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                resources:
+                  type: "string"
+                  example: "user"
+                permission:
+                  type: "string"
+                  example: "create"
+                description:
+                  type: "string"
+                created_at:
+                  type: "string"
+                  description: "permission created"
+                  example: "2019-11-20T00:00:00+07:00"
+          created_at:
+            type: "string"
+            example: "2019-11-20T00:00:00+07:00"
+      created_at:
+        type: "string"
+        example: "2019-11-20T00:00:00+07:00"
+      updated_at:
+        type: "string"
+        example: "2019-11-20T00:00:00+07:00"
+      deleted_at:
+        type: "string"
+        example: "2019-11-20T00:00:00+07:00"
+
+  RoleListResponse:
+    type: array
+    items:
+      type: "object"
+      properties:
+        id:
+          type: integer
+          description: "id role"
+          example: 1
+        name:
+          type: "string"
+          description: "role name"
+          example: "admin"
+        is_admin:
+          type: boolean
+          description: "isadmin"
+          example: true
+        permission:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              resources:
+                type: "string"
+                example: "user"
+              permission:
+                type: "string"
+                example: "create"
+              description:
+                type: "string"
+              created_at:
+                type: "string"
+                description: "permission created"
+                example: "2019-11-20T00:00:00+07:00"
+        created_at:
+          type: "string"
+          description: "role created"
+          example: "2019-11-20T00:00:00+07:00"
+
+  RoleAddResp:
+    type: "object"
+    properties:
+      id:
+        type: integer
+        description: "id role"
+        example: 1
+      name:
+        type: "string"
+        description: "role name"
+        example: "admin"
+      is_admin:
+        type: boolean
+        description: "isadmin"
+        example: true
+      permission:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            resources:
+              type: "string"
+              example: "user"
+            permission:
+              type: "string"
+              example: "create"
+            description:
+              type: "string"
+            created_at:
+              type: "string"
+              description: "permission created"
+              example: "2019-11-20T00:00:00+07:00"
+      created_at:
+        type: "string"
+        description: "role created"
+        example: "2019-11-20T00:00:00+07:00"
+
+  PermissionListResp:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        resources:
+          type: "string"
+          example: "user"
+        permission:
+          type: "string"
+          example: "create"
+        description:
+          type: "string"
+        created_at:
+          type: "string"
+          description: "permission created"
+          example: "2019-11-20T00:00:00+07:00"
+
+
+        

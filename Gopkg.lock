@@ -204,6 +204,14 @@
   version = "v1.19.0"
 
 [[projects]]
+  digest = "1:7e704bce17074e862cfe9e4c2849320c2628fc3501b7d0795c589a427ef2bf50"
+  name = "github.com/selvatico/go-mocket"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c368d4162be502eea110ae12fb85e98567b0f1e6"
+  version = "v1.0.7"
+
+[[projects]]
   digest = "1:ef433ff3fe7a464ceb7c7d1654ac9c7ae8d379d0ed83a69a7d263e4cc78b1a5c"
   name = "github.com/spf13/afero"
   packages = [
@@ -379,6 +387,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/davecgh/go-spew/spew",
     "github.com/dgrijalva/jwt-go",
     "github.com/go-sql-driver/mysql",
     "github.com/jinzhu/gorm",
@@ -390,6 +399,7 @@
     "github.com/mattn/go-sqlite3",
     "github.com/pressly/goose",
     "github.com/rs/zerolog",
+    "github.com/selvatico/go-mocket",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
     "github.com/stretchr/testify/assert",

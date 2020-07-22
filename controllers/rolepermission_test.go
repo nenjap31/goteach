@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	mocket "github.com/selvatico/go-mocket"
@@ -48,6 +49,8 @@ func TestRolePermission(t *testing.T){
 		})
 
 		if assert.NoError(t, GetRole(c)) {
+			spew.Dump("getrole========")
+			spew.Dump(rec.Code)
 			assert.Equal(t, http.StatusOK, rec.Code)
 		}
 
@@ -142,6 +145,7 @@ func TestRolePermission(t *testing.T){
 				Response: Roleresp,                 // the same as .WithReply
 				Once:     true,                             // To not use it twice if true
 			},
+
 			{
 				Pattern:  `UPDATE "roles" SET`, // the same as .WithQuery()
 				Response: Roleresp,                 // the same as .WithReply
@@ -154,13 +158,14 @@ func TestRolePermission(t *testing.T){
 			},
 			{
 				Pattern:  `INSERT INTO "role_permission"`, // the same as .WithQuery()
-				Response: Roleresp,                 // the same as .WithReply
+				Response: Rolepermission,                 // the same as .WithReply
 				Once:     true,                             // To not use it twice if true
 			},
 
 		})
 
 		if assert.NoError(t, UpdateRole(c)) {
+			spew.Dump(rec.Body)
 			assert.Equal(t, http.StatusOK, rec.Code)
 		}
 
@@ -192,13 +197,14 @@ func TestRolePermission(t *testing.T){
 			},
 			{
 				Pattern:  `INSERT INTO "role_permission"`, // the same as .WithQuery()
-				Response: Roleresp,                 // the same as .WithReply
+				Response: Rolepermission,                 // the same as .WithReply
 				Once:     true,                             // To not use it twice if true
 			},
 
 		})
 
 		if assert.NoError(t, UpdateRole(c)) {
+			spew.Dump(rec.Body)
 			assert.Equal(t, http.StatusOK, rec.Code)
 		}
 
